@@ -44,8 +44,8 @@ int main(int argc, char const *argv[]) {
             fprintf(2, "child write() error!\n");
             exit_status = 1;
         }
-        // printf("%d\n",fd_p2c[WR]);
-        // printf("%d\n",fd_c2p[RD]);
+         printf("%d\n",fd_p2c[WR]);
+         printf("%d\n",fd_c2p[RD]);
 
         close(fd_p2c[RD]);
         close(fd_c2p[WR]);
