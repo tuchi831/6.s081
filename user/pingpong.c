@@ -1,14 +1,14 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
-#define RD 0 //pipe的read�?
-#define WR 1 //pipe的write�?
+#define RD 0 //pipe的read�?
+#define WR 1 //pipe的write�?
 
 int main(int argc, char const *argv[]) {
     char buf = 'P'; //用于传送的字节
 
-    int fd_c2p[2]; //子进�?->父进�?
-    int fd_p2c[2]; //父进�?->子进�?
+    int fd_c2p[2]; //子进�?->父进�?
+    int fd_p2c[2]; //父进�?->子进�?
     pipe(fd_c2p);
     pipe(fd_p2c);
 
@@ -22,7 +22,7 @@ int main(int argc, char const *argv[]) {
         close(fd_p2c[RD]);
         close(fd_p2c[WR]);
         exit(1);
-    } else if (pid == 0) { //子进�?
+    } else if (pid == 0) { //子进�?
        // printf("%d\n",fd_p2c[WR]);
        // printf("%d\n",fd_c2p[RD]);
 
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]) {
         close(fd_c2p[WR]);
 
         exit(exit_status);
-    } else { //父进�?
+    } else { //父进�?
         // printf("%d\n",fd_p2c[WR]);
         // printf("%d\n",fd_c2p[RD]);
 
@@ -72,8 +72,8 @@ int main(int argc, char const *argv[]) {
 
         close(fd_p2c[WR]);
         close(fd_c2p[RD]);
-        print("���");
-        print("���");
+        print("你好");
+        print("你好我很好");
         
         exit(exit_status);
     }
