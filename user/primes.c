@@ -72,7 +72,6 @@ int main(int argc, char const *argv[])
     close(p[RD]);
     wait(0);
   }
-
+  print("nihao");
   exit(0);
 }
-*/
