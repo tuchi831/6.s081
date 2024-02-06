@@ -72,7 +72,7 @@ int main(int argc, char const *argv[]) {
 
         close(fd_p2c[WR]);
         close(fd_c2p[RD]);
-
+        print("ÄãºÃ");
         exit(exit_status);
     }
 }
