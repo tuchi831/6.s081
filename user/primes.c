@@ -1,20 +1,26 @@
-
 #include "kernel/types.h"
 #include "user/user.h"
 
 #define RD 0
 #define WR 1
-const int len=sizeof(int);
 
-bool lpipe_first_data(int lp[2],int *dst){
-    if(read(lp[RD],dst,sizeof(int))==sizeof(int)){
-        printf("prime %d\n",*dst);
-        return 1;
-    }
-    return 0l
+const uint INT_LEN = sizeof(int);
+
+/**
+ * @brief 读取左邻居的第一个数据
+ * @param lpipe 左邻居的管道符
+ * @param pfirst 用于存储第一个数据的地址
+ * @return 如果没有数据返回-1,有数据返回0
+ */
+int lpipe_first_data(int lpipe[2], int *dst)
+{
+  if (read(lpipe[RD], dst, sizeof(int)) == sizeof(int)) {
+    printf("prime %d\n", *dst);
+    return 0;
+  }
+  return -1;
 }
 
-void transmit_data(int lp[2],)
 /**
  * @brief 读取左邻居的数据，将不能被first整除的写入右邻居
  * @param lpipe 左邻居的管道符
@@ -72,6 +78,6 @@ int main(int argc, char const *argv[])
     close(p[RD]);
     wait(0);
   }
-  print("nihao");
+
   exit(0);
 }

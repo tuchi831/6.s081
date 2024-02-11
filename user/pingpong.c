@@ -1,14 +1,14 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
-#define RD 0 //pipe的read�?
-#define WR 1 //pipe的write�?
+#define RD 0 
+#define WR 1 
 
 int main(int argc, char const *argv[]) {
     char buf = 'P'; //用于传送的字节
 
-    int fd_c2p[2]; //子进�?->父进�?
-    int fd_p2c[2]; //父进�?->子进�?
+    int fd_c2p[2];
+    int fd_p2c[2]; 
     pipe(fd_c2p);
     pipe(fd_p2c);
 
@@ -22,20 +22,19 @@ int main(int argc, char const *argv[]) {
         close(fd_p2c[RD]);
         close(fd_p2c[WR]);
         exit(1);
-    } else if (pid == 0) { //子进�?
-       // printf("%d\n",fd_p2c[WR]);
-       // printf("%d\n",fd_c2p[RD]);
+    } else if (pid == 0) { 
+
 
         close(fd_p2c[WR]);
         close(fd_c2p[RD]);
         
-        printf("%d\n",fd_p2c[WR]);
-        printf("%d\n",fd_c2p[RD]);
+      //  printf("%d\n",fd_p2c[WR]);
+      //  printf("%d\n",fd_c2p[RD]);
         
         
         if (read(fd_p2c[RD], &buf, sizeof(char)) != sizeof(char)) {
             fprintf(2, "child read() error!\n");
-            exit_status = 1; //标记出错
+            exit_status = 1;
         } else {
             fprintf(1, "%d: received ping\n", getpid());
         }
@@ -44,16 +43,15 @@ int main(int argc, char const *argv[]) {
             fprintf(2, "child write() error!\n");
             exit_status = 1;
         }
-         printf("%d\n",fd_p2c[WR]);
-         printf("%d\n",fd_c2p[RD]);
+    //     printf("%d\n",fd_p2c[WR]);
+      //   printf("%d\n",fd_c2p[RD]);
 
         close(fd_p2c[RD]);
         close(fd_c2p[WR]);
 
         exit(exit_status);
-    } else { //父进�?
-        // printf("%d\n",fd_p2c[WR]);
-        // printf("%d\n",fd_c2p[RD]);
+    } else { 
+    
 
         close(fd_p2c[RD]);
         close(fd_c2p[WR]);
@@ -70,10 +68,10 @@ int main(int argc, char const *argv[]) {
             fprintf(1, "%d: received pong\n", getpid());
         }
 
-        close(fd_p2c[WR]);
-        close(fd_c2p[RD]);
-        print("你好");
-        print("你好我很好");
+     //   close(fd_p2c[WR]);
+      //  close(fd_c2p[RD]);
+       // print("你好");
+        //print("你好我很好");
         
         exit(exit_status);
     }
