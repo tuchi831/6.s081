@@ -277,9 +277,11 @@ fork(void)
 
   np->parent = p;
 
+  np->trace_mask = p->trace_mask;
+  
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
-
+  
   // Cause fork to return 0 in the child.
   np->trapframe->a0 = 0;
 
@@ -287,12 +289,13 @@ fork(void)
   for(i = 0; i < NOFILE; i++)
     if(p->ofile[i])
       np->ofile[i] = filedup(p->ofile[i]);
+
   np->cwd = idup(p->cwd);
 
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
-
+ 
   np->state = RUNNABLE;
 
   release(&np->lock);
