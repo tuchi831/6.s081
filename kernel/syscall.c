@@ -107,7 +107,7 @@ extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_trace(void);
-
+extern uint64 sys_sysinfo(void);
 
 static char *syscalls_name[] = {
 [SYS_fork]    "fork",
@@ -132,6 +132,7 @@ static char *syscalls_name[] = {
 [SYS_mkdir]   "mkdir",
 [SYS_close]   "close",
 [SYS_trace]   "trace",
+[SYS_sysinfo] "sysinfo",
 };
 
 
@@ -159,6 +160,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_trace]   sys_trace,
+[SYS_sysinfo] sys_sysinfo,
 };
 
 
@@ -176,6 +178,7 @@ syscall(void)
     // 系统调用是否匹配
     if ((1 << num) & p->trace_mask)
       printf("%d: syscall %s -> %d\n", p->pid, syscalls_name[num], p->trapframe->a0);
+    // 进程id号 进程名字 函数返回值
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);
