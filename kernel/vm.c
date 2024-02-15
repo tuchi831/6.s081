@@ -133,7 +133,7 @@ kvmpa(uint64 va)
   pte_t *pte;
   uint64 pa;
 
-  pte = walk(myproc()->kernelpt, va, 0); // 修改这里
+  pte = walk(myproc()->kpagetable, va, 0); // 修改这里
   if(pte == 0)
     panic("kvmpa");
   if((*pte & PTE_V) == 0)
@@ -468,28 +468,24 @@ vmprint(pagetable_t pagetable){
 
 // 添加一个新方法，要求用用于alloproc中初始化进程的内核页表
 // 写一个类似于kvmmap的uvmmap来对两者进行区分，尽管功能基本一致，但是一个是为xv6的内核简历页表映射，一个是为进程内核简历页表映射
-void
-uvmmap(pagetable_t pagetable, uint64 va, uint64 pa, uint64 sz, int perm)
-{
-  if(mappages(pagetable, va, sz, pa, perm) != 0)
+void ukvmmap(pagetable_t kpagetable, uint64 va, uint64 pa, uint64 sz, int perm) {
+  if(mappages(kpagetable, va, sz, pa, perm) != 0)
     panic("uvmmap");
 }
 
 // Create a kernel page table for the process
-pagetable_t
-proc_kpt_init(){
-  pagetable_t kernelpt = uvmcreate();
-  if (kernelpt == 0) return 0;
-  uvmmap(kernelpt, UART0, UART0, PGSIZE, PTE_R | PTE_W);
-  uvmmap(kernelpt, VIRTIO0, VIRTIO0, PGSIZE, PTE_R | PTE_W);
-  uvmmap(kernelpt, CLINT, CLINT, 0x10000, PTE_R | PTE_W);
-  uvmmap(kernelpt, PLIC, PLIC, 0x400000, PTE_R | PTE_W);
-  uvmmap(kernelpt, KERNBASE, KERNBASE, (uint64)etext-KERNBASE, PTE_R | PTE_X);
-  uvmmap(kernelpt, (uint64)etext, (uint64)etext, PHYSTOP-(uint64)etext, PTE_R | PTE_W);
-  uvmmap(kernelpt, TRAMPOLINE, (uint64)trampoline, PGSIZE, PTE_R | PTE_X);
-  return kernelpt;
+pagetable_t ukvminit() {
+  pagetable_t kpagetable = (pagetable_t) kalloc();
+  memset(kpagetable, 0, PGSIZE);
+  ukvmmap(kpagetable, UART0, UART0, PGSIZE, PTE_R | PTE_W);
+  ukvmmap(kpagetable, VIRTIO0, VIRTIO0, PGSIZE, PTE_R | PTE_W);
+  ukvmmap(kpagetable, CLINT, CLINT, 0x10000, PTE_R | PTE_W);
+  ukvmmap(kpagetable, PLIC, PLIC, 0x400000, PTE_R | PTE_W);
+  ukvmmap(kpagetable, KERNBASE, KERNBASE, (uint64)etext-KERNBASE, PTE_R | PTE_X);
+  ukvmmap(kpagetable, (uint64)etext, (uint64)etext, PHYSTOP-(uint64)etext, PTE_R | PTE_W);
+  ukvmmap(kpagetable, TRAMPOLINE, (uint64)trampoline, PGSIZE, PTE_R | PTE_X);
+  return kpagetable;
 }
-
 
 void
 proc_inithart(pagetable_t kpt){

@@ -19,7 +19,7 @@ struct spinlock pid_lock;
 extern void forkret(void);
 static void wakeup1(struct proc *chan);
 static void freeproc(struct proc *p);
-
+void proc_freewalk(pagetable_t);
 extern char trampoline[]; // trampoline.S
 
 // initialize the proc table at boot time.
@@ -122,8 +122,9 @@ found:
     return 0;
   }
 
-  p->kernelpt = proc_kpt_init();
-  if(p->kernelpt == 0){
+  // An empty user kernel page table.
+  p->kpagetable = ukvminit();
+  if(p->kpagetable == 0) {
     freeproc(p);
     release(&p->lock);
     return 0;
@@ -132,8 +133,8 @@ found:
   char *pa = kalloc();
   if(pa == 0)
     panic("kalloc");
-  uint64 va = KSTACK((int) (p - proc));
-  uvmmap(p->kernelpt, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
+  uint64 va = KSTACK((int)(p - proc));
+  ukvmmap(p->kpagetable, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
   p->kstack = va;
 
   // Set up new context to start executing at forkret,
@@ -166,9 +167,19 @@ freeproc(struct proc *p)
   p->xstate = 0;
   p->state = UNUSED;
 
-  uvmunmap(p->kernelpt, p->kstack, 1, 1);
+ // delete kstack
+  if(p->kstack) {
+    pte_t* pte = walk(p->kpagetable, p->kstack, 0);
+    if(pte == 0)
+      panic("freeproc: walk");
+    kfree((void*)PTE2PA(*pte));
+  }
   p->kstack = 0;
 
+  if(p->kpagetable) {
+    proc_freewalk(p->kpagetable);
+  }
+  p->kpagetable = 0;
 }
 
 // Create a user page table for a given process,
@@ -492,7 +503,10 @@ scheduler(void)
         // before jumping back to us.
         p->state = RUNNING;
         c->proc = p;
-        proc_inithart(p->kernelpt);
+
+        w_satp(MAKE_SATP(p->kpagetable));
+        sfence_vma();
+
         //进程内核内存页的初始化
         swtch(&c->context, &p->context);
 
@@ -736,3 +750,18 @@ proc_freekernelpt(pagetable_t kernelpt)
   }
   kfree((void*)kernelpt);
 }
+
+void proc_freewalk(pagetable_t pagetable) {
+  for (int i = 0; i < 512; i++) {
+    pte_t pte = pagetable[i];
+    if (pte & PTE_V) {
+      pagetable[i] = 0;
+      if ((pte & (PTE_R | PTE_W | PTE_X)) == 0) {
+        uint64 child = PTE2PA(pte);
+        proc_freewalk((pagetable_t)child);
+      }
+    }
+  }
+  kfree((void*)pagetable);
+}
+

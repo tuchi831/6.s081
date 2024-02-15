@@ -109,6 +109,7 @@ int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 
+
 // swtch.S
 void            swtch(struct context*, struct context*);
 
@@ -171,6 +172,10 @@ uint64          uvmdealloc(pagetable_t, uint64, uint64);
 pagetable_t     proc_kpt_init(void); // 用于内核页表的初始化
 void            proc_inithart(pagetable_t); // 将进程的内核页表保存到SATP寄存器
 void            uvmmap(pagetable_t , uint64, uint64 , uint64 , int );
+pte_t *         walk(pagetable_t , uint64 , int );
+pagetable_t     ukvminit(void);
+void            ukvmmap(pagetable_t , uint64 , uint64 , uint64 , int );
+
 
 #ifdef SOL_COW
 #else
