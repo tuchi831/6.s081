@@ -8,7 +8,7 @@
 #include "spinlock.h" 
 #include "proc.h"
 /*
- * the kernel's page table.
+ * the kernel's page table. 5555555
  */
 pagetable_t kernel_pagetable;
 
