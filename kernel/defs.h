@@ -182,7 +182,7 @@ void            ukvmmap(pagetable_t , uint64 , uint64 , uint64 , int );
 int             uvmcopy(pagetable_t, pagetable_t, uint64);// 00
 #endif
 void            uvmfree(pagetable_t, uint64);//11
-void            uvmunmap(pagetable_t, uint64, uint64, int);
+void            uvmunmap(pagetable_t, uint64, uint64, int);//33
 void            uvmclear(pagetable_t, uint64);
 uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
