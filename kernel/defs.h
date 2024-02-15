@@ -179,7 +179,7 @@ void            ukvmmap(pagetable_t , uint64 , uint64 , uint64 , int );
 
 #ifdef SOL_COW
 #else
-int             uvmcopy(pagetable_t, pagetable_t, uint64);// 00
+int             uvmcopy(pagetable_t, pagetable_t, uint64);
 #endif
 void            uvmfree(pagetable_t, uint64);//11
 void            uvmunmap(pagetable_t, uint64, uint64, int);//33
