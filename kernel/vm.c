@@ -7,6 +7,7 @@
 #include "fs.h"
 #include "spinlock.h" 
 #include "proc.h"
+
 /*
  * the kernel's page table. 5555555
  */
@@ -379,6 +380,10 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 int
 copyin(pagetable_t pagetable, char *dst, uint64 srcva, uint64 len)
 {
+  if(copyin_new(pagetable,dst,srcva,len) == 0)
+      return 0;
+  return -1;
+  /*
   uint64 n, va0, pa0;
 
   while(len > 0){
@@ -395,7 +400,7 @@ copyin(pagetable_t pagetable, char *dst, uint64 srcva, uint64 len)
     dst += n;
     srcva = va0 + PGSIZE;
   }
-  return 0;
+  return 0;*/
 }
 
 // Copy a null-terminated string from user to kernel.
@@ -405,6 +410,11 @@ copyin(pagetable_t pagetable, char *dst, uint64 srcva, uint64 len)
 int
 copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
 {
+  if(copyinstr_new(pagetable,dst,srcva,max) == 0)
+    return 0;
+  return -1;
+
+  /*
   uint64 n, va0, pa0;
   int got_null = 0;
 
@@ -438,7 +448,7 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
     return 0;
   } else {
     return -1;
-  }
+  }*/
 }
 
 void
