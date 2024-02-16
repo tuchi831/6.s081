@@ -51,6 +51,9 @@ exec(char *path, char **argv)
     uint64 sz1;
     if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz)) == 0)
       goto bad;
+    if(sz1 >= PLIC){
+      goto bad;
+    }
     sz = sz1;
     if(ph.vaddr % PGSIZE != 0)
       goto bad;
@@ -75,7 +78,7 @@ exec(char *path, char **argv)
   sp = sz;
   stackbase = sp - PGSIZE;
 
-  u2kvmcopy(pagetable, p->kpagetable, 0, sz);
+  //u2kvmcopy(pagetable, p->kpagetable, 0, sz);
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
@@ -98,7 +101,27 @@ exec(char *path, char **argv)
     goto bad;
   if(copyout(pagetable, sp, (char *)ustack, (argc+1)*sizeof(uint64)) < 0)
     goto bad;
+  //
+  pte_t *pte,*kernelPte;
+  int j;
+  uvmunmap(p->kpagetable,0,PGROUNDUP(oldsz)/PGSIZE,0);
+  
+  for(j = 0;j < sz;j+=PGSIZE){
+    pte = walk(pagetable,j,0);
+    kernelPte = walk(p->kpagetable,j,1);
+    *kernelPte = (*pte) & ~PTE_U;
+  }
 
+
+ //
+
+
+
+
+
+
+
+  //
   // arguments to user main(argc, argv)
   // argc is returned via the system call return
   // value, which goes in a0.

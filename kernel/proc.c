@@ -242,6 +242,7 @@ void
 userinit(void)
 {
   struct proc *p;
+  pte_t *pte,*kernelPte;
 
   p = allocproc();
   initproc = p;
@@ -250,7 +251,13 @@ userinit(void)
   // and data into it.
   uvminit(p->pagetable, initcode, sizeof(initcode));
   p->sz = PGSIZE;
-  u2kvmcopy(p->pagetable, p->kpagetable, 0, p->sz);
+  //u2kvmcopy(p->pagetable, p->kpagetable, 0, p->sz);
+  //将进程页表的mapping，复制一份到进程的内核页表
+  
+  pte = walk(p->pagetable,0,0);
+  kernelPte = walk(p->kpagetable,0,1);
+  *kernelPte = (*pte) & ~PTE_U;
+
 
 
   // prepare for the very first "return" from kernel to user.
@@ -297,9 +304,11 @@ growproc(int n)
 int
 fork(void)
 {
-  int i, pid;
+  int i, pid ,j;
   struct proc *np;
   struct proc *p = myproc();
+  //
+  pte_t *pte,*kernelPte;
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -312,6 +321,16 @@ fork(void)
     release(&np->lock);
     return -1;
   }
+
+  //
+
+  for( j = 0;j<p->sz;j+=PGSIZE){
+    pte = walk(np->pagetable,j,0);
+    kernelPte = walk(np->kpagetable,j,1);
+    *kernelPte = (*pte) & ~PTE_U; 
+  }
+
+  //
   np->sz = p->sz;
 
   np->parent = p;
@@ -328,7 +347,7 @@ fork(void)
       np->ofile[i] = filedup(p->ofile[i]);
   np->cwd = idup(p->cwd);
 
-  u2kvmcopy(np->pagetable, p->kpagetable, 0, np->sz);
+  //u2kvmcopy(np->pagetable, p->kpagetable, 0, np->sz);
 
   safestrcpy(np->name, p->name, sizeof(p->name));
 
