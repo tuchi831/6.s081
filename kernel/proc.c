@@ -256,6 +256,8 @@ userinit(void)
   
   pte = walk(p->pagetable,0,0);
   kernelPte = walk(p->kpagetable,0,1);
+  //kernelPte = walk(p->kpagetable,p->sz,1);
+
   *kernelPte = (*pte) & ~PTE_U;
 
 
@@ -290,7 +292,7 @@ growproc(int n)
       return -1;
     }
     // Ìí¼Ó¸´ÖÆº¯Êý
-    u2kvmcopy(p->pagetable,p->kpagetable, sz-n, sz);
+    //u2kvmcopy(p->pagetable,p->kpagetable, sz-n, sz);
   } else if(n < 0){
     sz = uvmdealloc(p->pagetable, sz, sz + n);
   }
