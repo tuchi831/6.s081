@@ -93,6 +93,13 @@ struct proc {
   int killed;                  // If non-zero, have been killed
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
+  
+  //时间间隔，调用的函数信息，时钟数
+  int interval;
+  int ticks;
+  uint64 handler;
+  struct trapframe *pretrapframe;
+  
 
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack

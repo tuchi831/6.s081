@@ -53,6 +53,8 @@ test0()
       break;
   }
   sigalarm(0, 0);
+ // count = 1;
+  //printf("%d\n",count);
   if(count > 0){
     printf("test0 passed\n");
   } else {
