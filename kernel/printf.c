@@ -121,9 +121,11 @@ panic(char *s)
   printf("panic: ");
   printf(s);
   printf("\n");
+  backtrace();
   panicked = 1; // freeze uart output from other CPUs
   for(;;)
     ;
+  
 }
 
 void
@@ -131,4 +133,29 @@ printfinit(void)
 {
   initlock(&pr.lock, "pr");
   pr.locking = 1;
+}
+/*
+void backtrace(void) {
+  uint64 fp = r_fp(), top = PGROUNDUP(fp);
+  printf("backtrace:\n");
+  for(; fp < top; fp = *((uint64*)(fp-16))) {
+    printf("%p\n", *((uint64*)(fp-8)));
+  }
+}
+*/
+
+void 
+backtrace(void)
+{
+  printf("backtrace:\n");
+
+  uint64 fp = r_fp();
+
+  while(PGROUNDUP(fp)-PGROUNDDOWN(fp) == PGSIZE)
+  {
+    //通过是否拥有完整页面来判断当前的fp是否被分配了一个页面
+    uint64 ret_addr = *(uint64*)(fp - 8);
+    printf("%p\n",ret_addr);
+    fp = *(uint64*)(fp-16);
+  }
 }
